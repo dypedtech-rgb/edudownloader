@@ -6,7 +6,7 @@
 // ── State ────────────────────────────────────
 let currentTab = 'youtube';
 let lastVideoInfo = null;   // { title, author, date, url, downloadUrl, filename, thumbnail }
-let cobaltApiUrl = '';
+let cobaltApiUrl = 'https://cobalt-api-lrxp.onrender.com';
 
 // ── Platform config ──────────────────────────
 const PLATFORMS = {
@@ -34,16 +34,10 @@ const PLATFORMS = {
 
 // ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Load saved API URL
-  cobaltApiUrl = localStorage.getItem('cobaltApiUrl') || '';
+  // Use hardcoded API URL
   const apiInput = document.getElementById('apiUrl');
-  if (apiInput && cobaltApiUrl) {
+  if (apiInput) {
     apiInput.value = cobaltApiUrl;
-  }
-
-  // Open API config if no URL is saved
-  if (!cobaltApiUrl) {
-    document.getElementById('apiConfig').open = true;
   }
 
   // Enable/disable download button based on input
