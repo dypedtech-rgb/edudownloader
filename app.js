@@ -133,6 +133,81 @@ async function pasteFromClipboard() {
   }
 }
 
+// ── Progress Engine ──────────────────────────
+const STEPS = [
+  { icon: '🔌', label: 'Conectando',          sub: 'Verificando el servidor de descargas',      pct: 10, etaSec: 12 },
+  { icon: '🔍', label: 'Analizando video',     sub: 'Detectando formato y calidad disponible',   pct: 30, etaSec: 9  },
+  { icon: '⚡', label: 'Procesando HD',        sub: 'Extrayendo stream en máxima definición',    pct: 55, etaSec: 6  },
+  { icon: '📦', label: 'Preparando descarga',  sub: 'Empaquetando el archivo de video',          pct: 80, etaSec: 3  },
+  { icon: '✅', label: '¡Listo!',              sub: 'Descarga lista para iniciar',               pct: 100, etaSec: 0 },
+];
+
+let _progressTimer = null;
+let _currentStepIndex = 0;
+
+function startProgressAnimation() {
+  const area = document.getElementById('statusArea');
+  area.style.display = 'block';
+  _currentStepIndex = 0;
+  document.getElementById('stepTrail').innerHTML = '';
+  _advanceToStep(0);
+}
+
+function _advanceToStep(idx) {
+  if (idx >= STEPS.length - 1) return; // hold at 80% until API responds
+  const step = STEPS[idx];
+  _renderStep(step, idx);
+  _currentStepIndex = idx;
+
+  const nextDelay = idx === 0 ? 800 : idx === 1 ? 1800 : idx === 2 ? 1800 : 1400;
+  _progressTimer = setTimeout(() => _advanceToStep(idx + 1), nextDelay);
+}
+
+function _renderStep(step, idx) {
+  // icon
+  document.getElementById('stepIcon').textContent = step.icon;
+  // label & sub
+  document.getElementById('statusText').textContent = step.label;
+  document.getElementById('statusSub').textContent = step.sub;
+  // ETA
+  const etaEl = document.getElementById('progressEta');
+  etaEl.textContent = step.etaSec > 0 ? `~${step.etaSec}s` : '¡Listo!';
+  // Ring
+  const circumference = 213.6;
+  const offset = circumference - (step.pct / 100) * circumference;
+  document.getElementById('progressRingFill').style.strokeDashoffset = offset;
+  // Pct text
+  document.getElementById('progressPct').textContent = step.pct + '%';
+  // Linear bar
+  document.getElementById('progressFill').style.width = step.pct + '%';
+  // Step trail
+  const trail = document.getElementById('stepTrail');
+  const existing = trail.querySelector(`.step-[data-idx='${idx}']`);
+  if (!existing) {
+    // Mark previous as done
+    trail.querySelectorAll('.step-item.active').forEach(el => {
+      el.classList.remove('active');
+      el.classList.add('done');
+      el.querySelector('.step-dot').textContent = '';
+      el.querySelector('.step-label-text').textContent = '✓ ' + el.querySelector('.step-label-text').textContent.replace(/^• /, '');
+    });
+    const div = document.createElement('div');
+    div.className = 'step-item active';
+    div.dataset.idx = idx;
+    div.innerHTML = `<div class='step-dot'></div><span class='step-label-text'>• ${step.label}</span>`;
+    trail.appendChild(div);
+  }
+}
+
+function finishProgress() {
+  clearTimeout(_progressTimer);
+  _renderStep(STEPS[STEPS.length - 1], STEPS.length - 1);
+}
+
+function stopProgress() {
+  clearTimeout(_progressTimer);
+}
+
 // ── Main Download Handler ────────────────────
 async function handleDownload() {
   const url = document.getElementById('videoUrl').value.trim();
@@ -145,13 +220,10 @@ async function handleDownload() {
   }
 
   resetUI();
-  showStatus('Conectando con el servidor...', true);
+  startProgressAnimation();
   disableButton(true);
 
   try {
-    // Call Cobalt API
-    showStatus('Procesando video... Esto puede tardar un momento', true);
-
     const response = await fetch(cobaltApiUrl + '/', {
       method: 'POST',
       headers: {
@@ -178,19 +250,13 @@ async function handleDownload() {
     }
 
     if (data.status === 'picker') {
-      // Multiple items found — show picker
+      finishProgress();
       handlePickerResponse(data, url);
       return;
     }
 
-    if (data.status === 'tunnel' || data.status === 'redirect') {
-      // Single video ready
-      await handleSingleVideo(data, url);
-      return;
-    }
-
-    if (data.status === 'local-processing') {
-      // Cobalt returned local-processing — still a URL
+    if (data.status === 'tunnel' || data.status === 'redirect' || data.status === 'local-processing') {
+      finishProgress();
       await handleSingleVideo(data, url);
       return;
     }
@@ -359,13 +425,9 @@ function showVideoCard(info) {
 }
 
 function showStatus(text, showSpinner) {
-  const area = document.getElementById('statusArea');
-  area.style.display = 'block';
-
+  // Legacy — used by handleSingleVideo success message
   document.getElementById('statusText').textContent = text;
-
-  const spinner = document.getElementById('spinner');
-  spinner.className = showSpinner ? 'spinner' : 'spinner hidden';
+  document.getElementById('statusSub').textContent = '';
 }
 
 function showError(message) {

@@ -12,6 +12,16 @@
 </head>
 <body>
 
+  <!-- SVG gradient defs (for progress ring) -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <!-- Animated background particles -->
   <div class="bg-particles" id="particles"></div>
 
@@ -93,16 +103,43 @@
         <span>Obtener Video en Alta Definición</span>
       </button>
 
-      <!-- Status Area -->
+
+      <!-- Status Area — Rich Progress Panel -->
       <div class="status-area" id="statusArea" style="display:none;">
-        <div class="status-header">
-          <div class="spinner" id="spinner"></div>
-          <span id="statusText">Procesando...</span>
+
+        <!-- Step label + time remaining -->
+        <div class="progress-header">
+          <div class="progress-step-icon" id="stepIcon">⚙️</div>
+          <div class="progress-step-info">
+            <div class="progress-step-label" id="statusText">Iniciando...</div>
+            <div class="progress-step-sub" id="statusSub">Conectando con el servidor</div>
+          </div>
+          <div class="progress-eta" id="progressEta">—</div>
         </div>
-        <div class="progress-bar" id="progressBar" style="display:none;">
-          <div class="progress-fill" id="progressFill"></div>
+
+        <!-- Big percentage + ring -->
+        <div class="progress-center">
+          <svg class="progress-ring" viewBox="0 0 80 80" width="80" height="80">
+            <circle class="progress-ring-bg" cx="40" cy="40" r="34" />
+            <circle class="progress-ring-fill" id="progressRingFill" cx="40" cy="40" r="34"
+              stroke-dasharray="213.6"
+              stroke-dashoffset="213.6" />
+          </svg>
+          <div class="progress-pct" id="progressPct">0%</div>
         </div>
+
+        <!-- Linear bar -->
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-track">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Steps trail -->
+        <div class="steps-trail" id="stepTrail"></div>
+
       </div>
+
 
       <!-- Video Info Card (appears after info is fetched) -->
       <div class="video-card" id="videoCard" style="display:none;">

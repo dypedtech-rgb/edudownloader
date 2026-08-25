@@ -476,22 +476,192 @@ body {
   background: rgba(59, 130, 246, 0.08);
 }
 
-/* ── Status Area ─────────────────────────────── */
+/* ── Status Area — Rich Progress Panel ────────── */
 .status-area {
   margin-top: 1.5rem;
-  padding: 1rem 1.2rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-md);
+  padding: 1.4rem 1.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
   animation: slideDown 0.3s ease-out;
 }
 
-.status-header {
+/* Header row: icon + label + ETA */
+.progress-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin-bottom: 1.2rem;
 }
 
+.progress-step-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  animation: pulse-icon 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.15); opacity: 0.7; }
+}
+
+.progress-step-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-step-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.progress-step-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.progress-eta {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  padding: 0.3rem 0.7rem;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Ring + percentage */
+.progress-center {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.2rem;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 6;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: url(#progressGradient);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+/* Linear bar */
+.progress-bar-wrap {
+  margin-bottom: 1rem;
+}
+
+.progress-bar-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--gradient-primary);
+  border-radius: 100px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 40px;
+  height: 100%;
+  background: rgba(255,255,255,0.3);
+  filter: blur(6px);
+  border-radius: 100px;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { opacity: 0; transform: scaleX(0.5); }
+  50%  { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(0.5); }
+}
+
+/* Steps trail */
+.steps-trail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  animation: slideDown 0.25s ease-out;
+}
+
+.step-item.done {
+  color: var(--accent-green);
+}
+
+.step-item.active {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.step-item.done .step-dot {
+  background: var(--accent-green);
+}
+
+.step-item.active .step-dot {
+  background: var(--accent-blue);
+  box-shadow: 0 0 6px var(--accent-blue);
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 4px var(--accent-blue); }
+  50%       { box-shadow: 0 0 10px var(--accent-blue); }
+}
+
+/* Legacy spinner (kept for compatibility) */
 .spinner {
   width: 18px;
   height: 18px;
@@ -514,21 +684,6 @@ body {
   color: var(--text-secondary);
 }
 
-.progress-bar {
-  margin-top: 0.8rem;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 100px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--gradient-primary);
-  border-radius: 100px;
-  transition: width 0.5s ease;
-}
 
 /* ── Video Card ──────────────────────────────── */
 .video-card {
