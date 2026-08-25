@@ -6,7 +6,7 @@
 // ── State ────────────────────────────────────
 let currentTab = 'youtube';
 let lastVideoInfo = null;   // { title, author, date, url, downloadUrl, filename, thumbnail }
-let cobaltApiUrl = 'https://cobalt-api-lrxp.onrender.com';
+let cobaltApiUrl = 'https://cobalt-server-t52u.onrender.com';
 
 // ── Platform config ──────────────────────────
 const PLATFORMS = {
