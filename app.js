@@ -99,15 +99,17 @@ function saveApiUrl() {
 async function testApiConnection() {
   showApiStatus('Probando conexión...', '');
   try {
-    const res = await fetch(cobaltApiUrl, {
-      method: 'GET',
+    const res = await fetch(cobaltApiUrl + '/', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: 'https://example.com' }),
       signal: AbortSignal.timeout(8000),
     });
-    if (res.ok) {
-      showApiStatus('✓ Conexión exitosa', 'success');
-    } else {
-      showApiStatus('✓ Servidor encontrado (puede requerir autenticación)', 'success');
-    }
+    // Any response (even 400) means the server is reachable
+    showApiStatus('✓ Servidor conectado correctamente', 'success');
   } catch (err) {
     showApiStatus('⚠ No se pudo conectar. Verifica la URL.', 'error');
   }
