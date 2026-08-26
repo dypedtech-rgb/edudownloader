@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "EduDownloader — Cookie Updater",
+  "version": "1.0",
+  "description": "Sube automáticamente tus cookies de YouTube a Render con un clic.",
+  "permissions": [
+    "cookies",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://youtube.com/*",
+    "https://api.render.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "EduDownloader Cookie Updater",
+    "default_icon": {
+      "32": "icon.png"
+    }
+  },
+  "icons": {
+    "32": "icon.png"
+  }
+}

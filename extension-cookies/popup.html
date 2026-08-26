@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookie Updater</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      width: 300px;
+      background: #f8fafc;
+      color: #1e293b;
+      padding: 0;
+    }
+    .header {
+      background: linear-gradient(135deg, #7e69ab, #9b87f5);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-text h1 { font-size: 0.95rem; font-weight: 700; color: #ffffff; }
+    .header-text p { font-size: 0.72rem; color: rgba(255,255,255,0.75); margin-top: 2px; }
+    .body { padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+    
+    .btn-upload {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, #7e69ab, #9b87f5); color: white;
+      border: none; border-radius: 100px;
+      font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(126, 105, 171, 0.25);
+    }
+    .btn-upload:hover:not(:disabled) { box-shadow: 0 6px 18px rgba(126, 105, 171, 0.35); transform: translateY(-1px); }
+    .btn-upload:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    
+    .status-box {
+      display: none; align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 500;
+    }
+    .status-box.loading { display: flex; background: rgba(155, 135, 245, 0.1); color: #7e69ab; }
+    .status-box.success { display: flex; background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .status-box.error { display: flex; background: rgba(244, 63, 94, 0.1); color: #be123c; }
+    
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(126, 105, 171, 0.2); border-top-color: #7e69ab;
+      border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div style="font-size: 1.6rem;">🎓</div>
+    <div class="header-text">
+      <h1>EduDownloader</h1>
+      <p>Sincronización Automática</p>
+    </div>
+  </div>
+
+  <div class="body">
+    <button class="btn-upload" id="uploadBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="16 16 12 12 8 16"></polyline>
+        <line x1="12" y1="12" x2="12" y2="21"></line>
+        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+      </svg>
+      Actualizar Cookies 🚀
+    </button>
+
+    <div class="status-box" id="statusBox">
+      <div class="spinner" id="statusSpinner" style="display:none;"></div>
+      <span id="statusText"></span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
