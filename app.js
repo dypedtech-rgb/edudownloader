@@ -7,7 +7,6 @@
 let currentTab = 'youtube';
 let lastVideoInfo = null;   // { title, author, date, url, downloadUrl, filename, thumbnail }
 let cobaltApiUrl = 'https://cobalt-server-t52u.onrender.com';
-const YT_WORKER = 'https://yt-edudownloader.dyp-edtech.workers.dev';
 
 // ── Platform config ──────────────────────────
 const PLATFORMS = {
@@ -214,68 +213,18 @@ async function handleDownload() {
   const url = document.getElementById('videoUrl').value.trim();
   if (!url) return;
 
+  if (!cobaltApiUrl) {
+    document.getElementById('apiConfig').open = true;
+    showApiStatus('⚠ Primero configura tu servidor Cobalt API', 'error');
+    return;
+  }
+
   resetUI();
   startProgressAnimation();
   disableButton(true);
 
   try {
-    const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-
-    if (isYouTube) {
-      // ── Ruta YouTube: Cloudflare Worker (sin bloqueos) ──
-      await handleYouTubeWorker(url);
-    } else {
-      // ── Ruta otros: Cobalt API (Instagram, TikTok, Web) ──
-      await handleCobaltDownload(url);
-    }
-
-  } catch (err) {
-    stopProgress();
-    showError(err.message);
-    disableButton(false);
-  }
-}
-
-// ── YouTube via Cloudflare Worker ──────────
-async function handleYouTubeWorker(url) {
-  const res = await fetch(`${YT_WORKER}/info?url=${encodeURIComponent(url)}`);
-
-  if (!res.ok) throw new Error('Error al contactar el servidor de YouTube');
-
-  const data = await res.json();
-
-  if (data.status !== 'success') {
-    throw new Error(data.error || 'No se pudo procesar el video de YouTube');
-  }
-
-  finishProgress();
-
-  // El Worker genera la URL de descarga directo — la usamos como downloadUrl
-  const info = {
-    title: data.title || 'Video de YouTube',
-    author: '',
-    date: new Date().toLocaleDateString('es-ES'),
-    url: url,
-    downloadUrl: data.downloadUrl,
-    filename: (data.title || 'video').replace(/[\/:*?"<>|]/g, '').trim() + '.mp4',
-    thumbnail: data.thumbnail || '',
-  };
-
-  // Intentar obtener metadata adicional de YouTube
-  const videoId = extractYouTubeId(url);
-  if (videoId) {
-    info.thumbnail = info.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-  }
-
-  lastVideoInfo = info;
-  showVideoCard(info);
-  showDownloadButton(info);
-  disableButton(false);
-}
-
-// ── Cobalt para Instagram/TikTok/Web ──────
-async function handleCobaltDownload(url) {
-  const response = await fetch(cobaltApiUrl + '/', {
+    const response = await fetch(cobaltApiUrl + '/', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
