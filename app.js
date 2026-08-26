@@ -99,17 +99,18 @@ function saveApiUrl() {
 async function testApiConnection() {
   showApiStatus('Probando conexión...', '');
   try {
+    // GET / returns Cobalt server info without triggering a download
     const res = await fetch(cobaltApiUrl + '/', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url: 'https://example.com' }),
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
       signal: AbortSignal.timeout(8000),
     });
-    // Any response (even 400) means the server is reachable
-    showApiStatus('✓ Servidor conectado correctamente', 'success');
+    if (res.ok || res.status === 405) {
+      // 200 = server info, 405 = only POST allowed — both mean server is up
+      showApiStatus('✓ Servidor conectado correctamente', 'success');
+    } else {
+      showApiStatus(`⚠ Servidor respondió con error ${res.status}`, 'error');
+    }
   } catch (err) {
     showApiStatus('⚠ No se pudo conectar. Verifica la URL.', 'error');
   }
