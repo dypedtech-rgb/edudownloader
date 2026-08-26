@@ -265,7 +265,12 @@ async function handleDownload() {
     throw new Error('Respuesta inesperada del servidor');
 
   } catch (err) {
-    showError(err.message);
+    const msg = err.message || '';
+    if (msg.includes('youtube.login') || msg.includes('youtube.decipher')) {
+      showYouTubeBlockedError(url);
+    } else {
+      showError(msg);
+    }
     disableButton(false);
   }
 }
@@ -429,6 +434,47 @@ function showStatus(text, showSpinner) {
   // Legacy — used by handleSingleVideo success message
   document.getElementById('statusText').textContent = text;
   document.getElementById('statusSub').textContent = '';
+}
+
+function showYouTubeBlockedError(videoUrl) {
+  stopProgress();
+  const existing = document.querySelector('.error-msg');
+  if (existing) existing.remove();
+  const existingYt = document.querySelector('.yt-blocked-msg');
+  if (existingYt) existingYt.remove();
+
+  const statusArea = document.getElementById('statusArea');
+  statusArea.style.display = 'none';
+
+  const div = document.createElement('div');
+  div.className = 'yt-blocked-msg';
+  div.innerHTML = `
+    <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 16px; padding: 20px; margin-top: 16px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+        <span style="font-size:1.4rem;">⚠️</span>
+        <strong style="color: #92400e; font-size: 0.95rem;">YouTube requiere verificación adicional</strong>
+      </div>
+      <p style="color: #78350f; font-size: 0.85rem; line-height: 1.5; margin-bottom: 14px;">
+        YouTube bloquea descargas desde servidores en la nube. 
+        Para este video, puedes usar una de estas alternativas:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="https://cobalt.tools/#${encodeURIComponent(videoUrl)}" target="_blank" rel="noopener"
+           style="display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 16px; background:#1e293b; color:white; border-radius:100px; text-decoration:none; font-size:0.85rem; font-weight:600; transition: transform 0.2s;">
+          🌐 Abrir en cobalt.tools
+        </a>
+        <a href="https://www.y2mate.com/youtube/${videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''}" target="_blank" rel="noopener"
+           style="display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 16px; background:#7e69ab; color:white; border-radius:100px; text-decoration:none; font-size:0.85rem; font-weight:600; transition: transform 0.2s;">
+          📥 Abrir en Y2Mate
+        </a>
+      </div>
+      <p style="color: #92400e; font-size: 0.75rem; margin-top: 12px; text-align:center;">
+        💡 Instagram, TikTok, Twitter y Vimeo funcionan directamente aquí
+      </p>
+    </div>
+  `;
+
+  document.querySelector('.main-panel').appendChild(div);
 }
 
 function showError(message) {
